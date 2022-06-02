@@ -1,40 +1,63 @@
-import React from "react";
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from "react-native";
+import React, {useState} from "react";
+import { SafeAreaView,View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
-
+import api from "../services/Api";
 import logo from '../assets/logo.png';
 
-export default function Login() {
+export default function Login( { navigation } ) {
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  function singin(){
+    api.post('login', {
+      email: email,
+      password: password
+    }).then(response => {
+      const { token } = response.data;
+      localStorage.setItem('token', token);
+      navigation.navigate('Index');
+    }).catch(err => {
+      alert('Usuário ou senha incorretos');
+    });
+  }
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <LinearGradient
         colors={['#0E5CBB', '#2E75E7']}
         style={styles.background}>
         <Image source={logo} style={styles.logo} />
         <View style={styles.formGroup}>
+        
           <Text style={styles.label}>E-mail</Text>
           <TextInput style={styles.input}
-            secureTextEntry={true}
             keyboardType="email-address"
             placeholder="E-mail"
             placeholderTextColor="#999"
             autoCapitalize='none'
             autoCorrect={false}
+            onChangeText={setEmail}
+            required={true}
           ></TextInput>
         </View>
         <View style={styles.formGroup}>
-          <Text style={styles.label}>Senha</Text>
+          <Text style={styles.label}>Senha:</Text>
           <TextInput style={styles.input}
             secureTextEntry={true}
             keyboardType="visible-password"
             placeholder="Digite sua Senha:"
             placeholderTextColor="#999"
             autoCapitalize='none'
+            onChangeText={setPassword}
             autoCorrect={false}
           ></TextInput>
         </View>
 
-        <TouchableOpacity style={[styles.button, styles.backgroundButton]}>
+        <TouchableOpacity 
+        style={[styles.button, styles.backgroundButton]}
+        onPress={singin}
+        >
           <Text style={styles.text}>Logar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button}>
@@ -43,8 +66,9 @@ export default function Login() {
         <TouchableOpacity style={styles.esqueci}>
           <Text style={styles.text}>Esqueci minha senha</Text>
           </TouchableOpacity>
+          
       </LinearGradient>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -95,6 +119,10 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 5
   }, 
+  scroll:{
+    backgroundColor: 'pink',
+    marginHorizontal: 20,
+  },
   button: {
     justifyContent: 'center',
     borderWidth: 1,
